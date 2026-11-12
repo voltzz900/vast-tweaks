@@ -1,0 +1,34 @@
+// An example pack: every statement Vast Tweaks knows.
+pack mytweaks "My Tweaks" 1.0.0 "My modpack's tweaks."
+author me
+
+// Take recipes out: by what they make, what they use, their id or their type.
+remove output minecraft:iron_pickaxe
+remove id minecraft:*_bed where type minecraft:crafting_shaped
+
+// Swap an ingredient (or a result) in the recipes you pick, or in all of them.
+replace input stick with vastores:steel_rod where id minecraft:*_pickaxe
+replace output minecraft:iron_nugget with vastores:tin_nugget where id minecraft:iron_nugget_from_smelting
+
+// One mod's item for another's, everywhere: made as ours, asked for as the tag.
+unify othermod:tin_ingot -> vastores:tin_ingot as #c:ingots/tin
+
+// New recipes. `as` names one; `if mod` keeps it only while that mod is installed.
+shaped minecraft:saddle as saddle
+  "LLL"
+  "S S"
+  L = leather
+  S = string
+end
+shapeless minecraft:string x4 = #minecraft:wool
+smelting minecraft:rotten_flesh -> minecraft:leather xp 0.1
+blasting vastores:tin_dust -> vastores:tin_ingot if mod vastores
+stonecutting minecraft:stone -> minecraft:stone_bricks
+
+// Write over another mod's recipe by its id.
+// (in a shapeless list, `x8` after an ingredient repeats it: eight stones)
+override minecraft:furnace shapeless minecraft:furnace = #minecraft:stone_crafting_materials x8
+
+// Tags and names.
+tag item c:ingots/tin add othermod:tin_ingot
+name minecraft:stick "Twig" "Graveto"
