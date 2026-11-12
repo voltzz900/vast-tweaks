@@ -1,0 +1,56 @@
+[mod]
+id = "vasttweaks"
+version = "1.1.0"
+priority = 100
+
+# The Horizon commit it was built and tested on.
+[compatibility]
+horizon_revision = "fdc87aecdbd116bf1e08adcd062fcbaea8c2e2ca"
+
+# The script language: the scripts into data pack files (no game; tested on its own).
+[[module]]
+id = "script"
+file = "crates/horizon-client/src/game.rs"
+name = "vasttweaks_script"
+source = "script.rs"
+
+# The game's side: the config folder, the files, the status line.
+[[module]]
+id = "client"
+file = "crates/horizon-client/src/game.rs"
+name = "vasttweaks_client"
+source = "client.rs"
+
+# Each data load (a world opening, /reload): the scripts' recipe filters, recipes and tags join it.
+[[injection]]
+id = "data-pack-files"
+hook = "data_pack_files"
+hook_version = 1
+kind = "HEAD"
+helper = "data_pack_files.rs"
+bindings = [
+  { name = "game", ty = "&crate::game::Game<'_>", value = "&*self" },
+  { name = "files", ty = "&mut Vec<(String, Vec<u8>)>", value = "&mut *files" },
+]
+
+# The server's recipes of the game's own types go to its clients, so their recipe book and JEI show the changes.
+[[injection]]
+id = "datapack-sync"
+hook = "datapack_sync"
+hook_version = 1
+kind = "HEAD"
+helper = "datapack_sync.rs"
+bindings = [
+  { name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self" },
+  { name = "recipe_types", ty = "&mut Vec<String>", value = "&mut *recipe_types" },
+]
+
+[[injection]]
+id = "list"
+hook = "mods"
+hook_version = 1
+kind = "HEAD"
+helper = "list.rs"
+bindings = [
+  { name = "mods", ty = "&mut Vec<crate::game::native_hooks::NativeMod>", value = "&mut *mods" },
+]

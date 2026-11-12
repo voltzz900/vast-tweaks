@@ -1,8 +1,26 @@
 # Vast Tweaks
 
-KubeJS-style recipe tweaks for [Horizon](https://playhorizon.dev) (Minecraft 26.3 rewritten in Rust), without
-running any code in the game: you write a small script, and `vasttweaks.py` turns it into a **content mod** (data
-only) that Horizon loads like any other.
+KubeJS-style recipe tweaks for [Horizon](https://playhorizon.dev) (Minecraft 26.3 rewritten in Rust): write a small
+script, and the game's recipes, tags and unification follow it.
+
+## Using it in the game (the native mod)
+
+1. Install **Vast Tweaks** from the launcher's mod browser (or put `vasttweaks-<version>.hnmod` in
+   `horizon-native-mods/`) and build natives in the launcher.
+2. Open a world once: Horizon gets a folder **`config/vasttweaks/`** with a `README.txt` and an example
+   (`example.vt.off`, which isn't loaded).
+3. Write your scripts there as **`<anything>.vt`** files, then run **`/reload`** (or open the world again). The
+   recipe book and JEI show the changes too.
+4. **`config/vasttweaks/last-load.txt`** says what was loaded and lists any mistake with its file and line; a script
+   with a mistake is left out whole, the others still count.
+
+It works on a server too: the server's scripts apply, and Horizon players see its recipes in their recipe book and
+JEI. Everything but `name` works in the mod (renaming is for the tool below, for now).
+
+## Making a content mod instead (the tool)
+
+`tools/vasttweaks.py` compiles the same scripts into a **content mod** you can share or publish (that's how
+[Vast Unify](https://github.com/voltzz900/vast-unify) is made), and it can also rename items:
 
 ```
 python3 tools/vasttweaks.py build my_pack.vt --install     # build it and put it in Horizon's mods
@@ -10,7 +28,9 @@ python3 tools/vasttweaks.py build scripts/ --hmod          # every .vt of a fold
 ```
 
 Then turn the pack on in the launcher (the first time) and restart Horizon. Python 3.9 or newer, nothing else.
-`--install` only ever replaces a folder this tool made.
+`--install` only ever replaces a folder this tool made. A content mod can't write into another mod's folders, so
+there `override` is a filter on the original plus a new recipe; in the native mod the new recipe takes the
+original's id.
 
 ## The language
 
@@ -48,11 +68,12 @@ recipe viewers. New recipes, tags and names are ordinary data in the pack's own 
   recipe, not a file over the original.
 - Filters see recipes written as data. A machine that works out its results in code, and loot (mob drops, ore
   drops), are out of their reach.
-- Changes need a restart of Horizon (there is no `/reload` of a pack yet).
+- The content mod needs a restart of Horizon to change; the native mod follows `/reload`.
 
 ## Tests
 
-`python3 -m unittest discover -s tests`
+`python3 -m unittest discover -s tests` (the tool) and `cargo test` (the native mod's script compiler,
+`mixins/vasttweaks/script.rs`). `tools/package.py` packs the native mod.
 
 ## License
 
