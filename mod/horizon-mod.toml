@@ -5,6 +5,7 @@ description = "Change recipes and tags with small scripts in config/vasttweaks/,
 authors = ["voltzz900"]
 api = "0.2"
 side = "both"
+capabilities = []
 
 [native]
 game = "26.3"
