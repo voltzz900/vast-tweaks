@@ -1,6 +1,6 @@
-# Registry page: Vast Tweaks (native)
+# Registry page: Vast Tweaks
 
-- **File:** `vasttweaks-1.1.0.hnmod` (release v1.1.0), kind: native mod
+- **File:** `vasttweaks-1.2.0.hmod` (release v1.2.0), kind: native mod
 - **Icon:** `icons/vasttweaks.png`
 - **Name:** Vast Tweaks
 - **Summary:** KubeJS-style scripts for your recipes: remove, replace, unify, add and override recipes and tags from config/vasttweaks/*.vt, with /reload.
@@ -36,6 +36,8 @@ tag item c:ingots/tin add othermod:tin_ingot
 
 It also works on a server: the server's scripts apply, and Horizon players get its recipes in their book and JEI.
 
-**What it changes in the game:** on each data load (a world opening, `/reload`) it reads `config/vasttweaks/*.vt` and adds the recipe filters, recipes and tags they say to that load (`native_data_pack_files`); when there are scripts, it asks the server to send its clients the recipes of the game's own crafting, cooking, stonecutting and smithing types (`native_datapack_sync`), so their viewers match. It writes only in `config/vasttweaks/` (the first README and example, and `last-load.txt`). No network of its own.
+**What it changes in the game:** on each data load (a world opening, `/reload`) it reads `config/vasttweaks/*.vt` and adds the recipe filters, recipes and tags they say to that load (the mod API's `data_pack_files` hook); when there are scripts, it asks the server to send its clients the recipes of the game's own crafting, cooking, stonecutting and smithing types (`datapack_sync`), so their viewers match. Hooks only, no mixins. It writes only in `config/vasttweaks/` (the first README and example, and `last-load.txt`). No network of its own.
 
 Also a Python tool in the repository compiles the same scripts into a content mod to share (with item renames).
+
+1.2.0 is the same mod on Horizon's mod API (1.1.0 was a `.hnmod`, which launchers from 0.2.70 no longer load). Pinned to Horizon 702ab1e.
