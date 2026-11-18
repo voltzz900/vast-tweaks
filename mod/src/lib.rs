@@ -1,13 +1,30 @@
-//! Builds `mixins/vasttweaks/script.rs` on its own, for `cargo test`. In the game it is a module of
-//! horizon-client's `game`.
+//! Vast Tweaks: recipes and tags changed by small scripts. The scripts in `config/vasttweaks/` are compiled into
+//! data pack files each time a world loads its data (opening it, `/reload`); with scripts in play, Horizon clients
+//! get the server's recipes of the game's own types, so their recipe book and viewers (JEI) show the changes.
 
-#[path = "../mixins/vasttweaks/script.rs"]
+mod client;
 pub mod script;
+
+use mod_api::{self, DataPackFilesEvent, DatapackSyncEvent, Hooks, ServerHost};
+
+#[derive(Default)]
+struct VastTweaks;
+
+#[mod_api::horizon_mod]
+impl Hooks for VastTweaks {
+    fn data_pack_files(&self, host: &mut dyn ServerHost, event: &mut DataPackFilesEvent<'_>) {
+        client::data_pack_files(&host.instance_dir().join("config").join("vasttweaks"), event.files);
+    }
+
+    fn datapack_sync(&self, _host: &mut dyn ServerHost, event: &mut DatapackSyncEvent<'_>) {
+        client::datapack_sync(event.recipe_types);
+    }
+}
 
 #[cfg(test)]
 mod tests {
-    use super::script::compile;
-    use serde_json::{Value, json};
+    use crate::script::compile;
+    use mod_api::serde_json::{Value, json};
 
     fn files(text: &str) -> Vec<(String, Value)> {
         let (c, errors) = compile(&[("pack.vt".into(), text.into())]);
@@ -81,7 +98,7 @@ mod tests {
     #[test]
     fn same_language_as_the_tool() {
         // The example the content-mod tool ships, less its `name` line, compiles here too.
-        let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/examples/example.vt")).unwrap();
+        let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../examples/example.vt")).unwrap();
         let (c, errors) = compile(&[("example.vt".into(), text)]);
         assert!(errors.iter().all(|e| e.message.starts_with("left out")), "{errors:?}");
         assert!(c.recipes >= 6 && c.filters >= 5);

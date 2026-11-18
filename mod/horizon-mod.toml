@@ -1,0 +1,12 @@
+id = "vasttweaks"
+name = "Vast Tweaks"
+version = "1.2.0"
+description = "Change recipes and tags with small scripts in config/vasttweaks/, read when a world opens and on /reload."
+authors = ["voltzz900"]
+api = "0.2"
+side = "both"
+
+[native]
+game = "26.3"
+horizon = "702ab1e3b42921ef025841802e59d64060b6c0b4"
+mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"

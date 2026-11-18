@@ -1,7 +1,7 @@
-// Vast Tweaks, the game's side: the scripts in `config/vasttweaks/` compiled into data pack files each time a world
-// loads its data (opening it, `/reload`). Injected into horizon-client's game.rs as `vasttweaks_client`.
+//! The game's side: the scripts in `config/vasttweaks/` compiled into data pack files each time a world loads its
+//! data (opening it, `/reload`).
 
-use super::vasttweaks_script as script;
+use crate::script;
 use std::fs;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -22,8 +22,8 @@ const SYNCED_TYPES: [&str; 8] = [
     "minecraft:smithing_transform",
 ];
 
-/// At `native_datapack_sync`: with scripts in play, the clients get the server's recipes of those types.
-pub(super) fn datapack_sync(recipe_types: &mut Vec<String>) {
+/// At `datapack_sync`: with scripts in play, the clients get the server's recipes of those types.
+pub fn datapack_sync(recipe_types: &mut Vec<String>) {
     if CHANGED.load(Ordering::Relaxed) {
         for t in SYNCED_TYPES {
             if !recipe_types.iter().any(|r| r == t) {
@@ -58,28 +58,21 @@ shapeless minecraft:string x4 = #minecraft:wool\n\
 smelting minecraft:rotten_flesh -> minecraft:leather xp 0.1\n\
 override minecraft:furnace shapeless minecraft:furnace = #minecraft:stone_crafting_materials x8\n";
 
-/// At `native_data_pack_files`: the scripts' files join this load.
-pub(super) fn data_pack_files(files: &mut Vec<(String, Vec<u8>)>) {
-    let dir = match super::Game::native_config_dir() {
-        Ok(d) => d.join("vasttweaks"),
-        Err(e) => {
-            log::warn!("Vast Tweaks: no config folder: {e}");
-            return;
-        }
-    };
+/// At `data_pack_files`: the scripts in `dir` join this load.
+pub fn data_pack_files(dir: &Path, files: &mut Vec<(String, Vec<u8>)>) {
     if !dir.exists() {
         // The first time: a folder with how to write scripts and an example that isn't loaded.
-        let _ = fs::create_dir_all(&dir)
+        let _ = fs::create_dir_all(dir)
             .and_then(|()| fs::write(dir.join("README.txt"), README))
             .and_then(|()| fs::write(dir.join("example.vt.off"), EXAMPLE));
     }
-    let scripts = read_scripts(&dir);
+    let scripts = read_scripts(dir);
     let (compiled, errors) = script::compile(&scripts);
     CHANGED.store(!compiled.files.is_empty(), Ordering::Relaxed);
     for (key, value) in &compiled.files {
-        match serde_json::to_vec(value) {
+        match mod_api::serde_json::to_vec(value) {
             Ok(bytes) => files.push((key.clone(), bytes)),
-            Err(e) => log::warn!("Vast Tweaks: {key} not written: {e}"),
+            Err(e) => eprintln!("Vast Tweaks: {key} not written: {e}"),
         }
     }
     let mut status = format!(
@@ -90,13 +83,12 @@ pub(super) fn data_pack_files(files: &mut Vec<(String, Vec<u8>)>) {
         compiled.tags
     );
     for e in &errors {
-        log::warn!("Vast Tweaks: {e}");
         status.push_str(&format!("{e}\n"));
     }
     if errors.iter().any(|e| !e.message.starts_with("left out")) {
         status.push_str("A script with a mistake is left out whole; fix it and /reload.\n");
     }
-    log::info!("Vast Tweaks: {}", status.lines().next().unwrap_or_default());
+    eprintln!("Vast Tweaks: {}", status.lines().next().unwrap_or_default());
     let _ = fs::write(dir.join("last-load.txt"), status);
 }
 

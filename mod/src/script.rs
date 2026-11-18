@@ -2,7 +2,7 @@
 // is tested on its own); `client.rs` hands it the scripts and gives the game what it makes. The same language as
 // `tools/vasttweaks.py`, which writes a content mod instead.
 
-use serde_json::{Map, Value, json};
+use mod_api::serde_json::{Map, Value, json};
 use std::collections::BTreeMap;
 
 /// What the scripts make: the data pack files, by the key Horizon's overlay takes (`recipe/<ns>:<path>`,

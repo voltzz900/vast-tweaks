@@ -2,4 +2,7 @@
 /dist
 __pycache__/
 /target
-Cargo.lock
+/mod/.horizon
+/mod/target
+/mod/Cargo.lock
+/mod/LICENSE
