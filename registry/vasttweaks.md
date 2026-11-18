@@ -1,6 +1,6 @@
 # Registry page: Vast Tweaks
 
-- **File:** `vasttweaks-1.2.0.hmod` (release v1.2.0), kind: native mod
+- **File:** `vasttweaks-1.2.1.hmod` (release v1.2.1), kind: native mod
 - **Icon:** `icons/vasttweaks.png`
 - **Name:** Vast Tweaks
 - **Summary:** KubeJS-style scripts for your recipes: remove, replace, unify, add and override recipes and tags from config/vasttweaks/*.vt, with /reload.
@@ -40,4 +40,4 @@ It also works on a server: the server's scripts apply, and Horizon players get i
 
 Also a Python tool in the repository compiles the same scripts into a content mod to share (with item renames).
 
-1.2.0 is the same mod on Horizon's mod API (1.1.0 was a `.hnmod`, which launchers from 0.2.70 no longer load). Pinned to Horizon 702ab1e.
+1.2.0 is the same mod on Horizon's mod API (1.1.0 was a `.hnmod`, which launchers from 0.2.70 no longer load). Pinned to Horizon 0b14f8a.
