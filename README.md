@@ -5,8 +5,9 @@ script, and the game's recipes, tags and unification follow it.
 
 ## Using it in the game (the native mod)
 
-1. Install **Vast Tweaks** from the launcher's mod browser (or put `vasttweaks-<version>.hnmod` in
-   `horizon-native-mods/`) and build natives in the launcher.
+1. Install **Vast Tweaks** from the launcher's mod browser (or install `vasttweaks-<version>.hmod`) and build
+   natives in the launcher. It runs on Horizon's mod API (1.1 was a `.hnmod`, which launchers from 0.2.70 no longer
+   load: remove it).
 2. Open a world once: Horizon gets a folder **`config/vasttweaks/`** with a `README.txt` and an example
    (`example.vt.off`, which isn't loaded).
 3. Write your scripts there as **`<anything>.vt`** files, then run **`/reload`** (or open the world again). The
@@ -72,8 +73,9 @@ recipe viewers. New recipes, tags and names are ordinary data in the pack's own 
 
 ## Tests
 
-`python3 -m unittest discover -s tests` (the tool) and `cargo test` (the native mod's script compiler,
-`mixins/vasttweaks/script.rs`). `tools/package.py` packs the native mod.
+`python3 -m unittest discover -s tests` (the tool) and `cargo test` in `mod/` (the native mod, a crate on
+Horizon's mod API; its script compiler is `mod/src/script.rs`). `tools/package.py` packs the native mod with
+`cargo horizon-mod build`.
 
 ## License
 
