@@ -1,6 +1,6 @@
 id = "vasttweaks"
 name = "Vast Tweaks"
-version = "1.2.1"
+version = "1.2.2"
 description = "Change recipes and tags with small scripts in config/vasttweaks/, read when a world opens and on /reload."
 authors = ["voltzz900"]
 api = "0.2"

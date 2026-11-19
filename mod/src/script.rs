@@ -381,6 +381,10 @@ fn parse(text: &str, source: &str, stem: &str, pack: &mut Pack) -> Result<(), Sc
                         let Some(last) = ingredients.last().cloned() else {
                             return err(&at, format!("`{w}` repeats the ingredient before it; there is none"));
                         };
+                        // A recipe holds 9 at most: refuse a repeat past that before making the copies.
+                        if k == 0 || ingredients.len() + (k as usize - 1) > 9 {
+                            return err(&at, "a result and 1 to 9 ingredients");
+                        }
                         for _ in 1..k {
                             ingredients.push(last.clone());
                         }

@@ -86,6 +86,14 @@ mod tests {
         assert!(errors[0].message.contains("no item for B"));
         let (_, errors) = compile(&[("x.vt".into(), "remove\n".into())]);
         assert!(errors[0].message.contains("say which recipes"));
+        // A huge repeat is refused before any copy is made.
+        let (_, errors) = compile(&[("x.vt".into(), "shapeless stone = dirt x4000000000\n".into())]);
+        assert!(errors[0].message.contains("1 to 9 ingredients"));
+        let (_, errors) = compile(&[("x.vt".into(), "shapeless stone = dirt x0\n".into())]);
+        assert!(errors[0].message.contains("1 to 9 ingredients"));
+        let (c, errors) = compile(&[("x.vt".into(), "shapeless stone = dirt x9\n".into())]);
+        assert!(errors.is_empty());
+        assert_eq!(c.recipes, 1);
     }
 
     #[test]
