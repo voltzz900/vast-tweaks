@@ -5,15 +5,46 @@
 mod client;
 pub mod script;
 
-use mod_api::{self, DataPackFilesEvent, DatapackSyncEvent, Hooks, ServerHost};
+use mod_api::{self, DataPackFilesEvent, DatapackSyncEvent, Hooks, InstanceDirectory, Registrar, RegistrationContext, ServerHost};
+use std::path::PathBuf;
+use std::sync::OnceLock;
+
+/// The game folder, captured at registration: `data_pack_files` runs while the server loads its data, where the
+/// host's `instance_dir` is refused (a panic that stops the world from opening).
+static INSTANCE: OnceLock<PathBuf> = OnceLock::new();
+
+fn path(dir: &InstanceDirectory) -> Option<PathBuf> {
+    match dir {
+        #[cfg(unix)]
+        InstanceDirectory::Unix(bytes) => {
+            use std::os::unix::ffi::OsStrExt;
+            Some(PathBuf::from(std::ffi::OsStr::from_bytes(bytes)))
+        }
+        #[cfg(windows)]
+        InstanceDirectory::Windows(units) => {
+            use std::os::windows::ffi::OsStringExt;
+            Some(PathBuf::from(std::ffi::OsString::from_wide(units)))
+        }
+        _ => None,
+    }
+}
 
 #[derive(Default)]
 struct VastTweaks;
 
 #[mod_api::horizon_mod]
 impl Hooks for VastTweaks {
-    fn data_pack_files(&self, host: &mut dyn ServerHost, event: &mut DataPackFilesEvent<'_>) {
-        client::data_pack_files(&host.instance_dir().join("config").join("vasttweaks"), event.files);
+    fn register(&self, _: &mut dyn Registrar, cx: &RegistrationContext) {
+        if let Some(dir) = cx.instance_dir().ok().and_then(path) {
+            let _ = INSTANCE.set(dir);
+        }
+    }
+
+    fn data_pack_files(&self, _host: &mut dyn ServerHost, event: &mut DataPackFilesEvent<'_>) {
+        match INSTANCE.get() {
+            Some(dir) => client::data_pack_files(&dir.join("config").join("vasttweaks"), event.files),
+            None => eprintln!("vasttweaks: the game folder is unknown, so no script is loaded"),
+        }
     }
 
     fn datapack_sync(&self, _host: &mut dyn ServerHost, event: &mut DatapackSyncEvent<'_>) {
